@@ -12,12 +12,14 @@ def on_click(current_text, column):
     return current_text + " " + "{" + column + "}"
 
 with gr.Blocks() as demo:
+    gr.Markdown("# Custom Email Sender Application")
     file = gr.File(label="Upload CSV file")
 
     @gr.render(inputs=file)
     def show_buttons(file):
         df = pd.read_csv(file.name)
         columns = df.columns.to_list()
+        gr.Markdown("## Select placeholders to include in the prompt")
         with gr.Row():
             for column in columns:
                 gr.Button(column).click(fn = on_click, inputs = [prompt, gr.State(value=column)], outputs = prompt)
