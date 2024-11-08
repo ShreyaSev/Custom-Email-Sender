@@ -39,6 +39,8 @@ def process_data(file=None, user_prompt = None, scheduled_at=None):
         prompt = create_prompt(row, user_prompt=user_prompt)
         message = generate_message(prompt)
         send_email(to_email=email, message_content=message, personalisations_dict=personalisation_dict)
+
+        #remove this before finishing
         count += 1
         if count == 3:
             break
