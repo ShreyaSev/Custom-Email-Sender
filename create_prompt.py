@@ -22,13 +22,13 @@ def get_unix_timestamp(scheduled_at):
     datetime_string = scheduled_at
 
     # Parse the string into a datetime object
-    datetime_obj = datetime.datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
+    datetime_obj = datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
 
     # Convert to UNIX timestamp
     unix_timestamp = int(datetime_obj.timestamp())
     return unix_timestamp
 
-def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_per_hour = None, batch_size = None):
+def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_per_hour = None):
     
     if scheduled_at:
         unix_timestamp = get_unix_timestamp(scheduled_at)
@@ -37,7 +37,6 @@ def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_pe
     df = pd.read_csv(file.name)
 
 
-    BATCH_SIZE = batch_size if batch_size else len(df)
     THROTTLE_DELAY  = 3600 / max_emails_per_hour if max_emails_per_hour else 0
     scheduler = BackgroundScheduler()
     count = 0
@@ -56,29 +55,28 @@ def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_pe
     #     if count == 3:
     #         break
 
-    batches = [df[i:i+batch_size] for i in range(0, len(df), batch_size)]
 
-    def schedule_batch(batch_df):
-        for _, row in batch_df.iterrows():
-            email = row['Email']
-            prompt = create_prompt(row, user_prompt=user_prompt)
-            message = generate_message(prompt)
-            scheduled_time = unix_timestamp if scheduled_at else None
-            personalisation_dict = {"send_at": scheduled_time}
-            send_email(to_email=email, message_content=message, personalisations_dict=personalisation_dict)
-            time.sleep(THROTTLE_DELAY)
+    
+    for idx, row in df.iterrows():
+        email = row['Email']
+        prompt = create_prompt(row, user_prompt=user_prompt)
+        message = generate_message(prompt)
+        scheduled_time = unix_timestamp if scheduled_at else None
+        personalisation_dict = {"send_at": scheduled_time}
+        # send_email(to_email=email, message_content=message, personalisations_dict=personalisation_dict)
         
-    if max_emails_per_hour:
-        for idx,batch in enumerate(batches):
-            run_time = datetime.now() + timedelta(minutes=idx * (60 / max_emails_per_hour))
-            scheduler.add_job(schedule_batch, 'date', run_date=run_time, args=[batch])
+        run_time = (datetime.strptime(scheduled_at, "%Y-%m-%d %H:%M:%S") if scheduled_at else datetime.now()) + timedelta(seconds= idx * THROTTLE_DELAY)
+        scheduler.add_job(send_email, args=[email, message, personalisation_dict], run_date=run_time, misfire_grace_time=5)
         
-        print("Emails scheduled with throttling")
+    scheduler.start()
 
-    else:
-        for batch in batches:
-            schedule_batch(batch)
-        print("Emails scheduled without throttling")
+    try:
+        while True:
+            time.sleep(2)
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
 
 if __name__ == "__main__":
-    process_data()
+    process_data(user_prompt="Generate an email to {Company Name} located at {Location} promoting my marketing services to them, emphasizing my experience in selling {Products}.", 
+                 scheduled_at="2024-11-8 23:37:00",
+                 max_emails_per_hour=10)
