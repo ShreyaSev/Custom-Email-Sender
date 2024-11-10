@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
+# Global variables to store job statuses and progress
+job_statuses = []
+progress = 0
 
 def create_prompt(row, user_prompt):
     # user_prompt = f"Generate an email selling my marketing services to this company {company} located at {location} which sells these {products}"
@@ -28,7 +31,7 @@ def get_unix_timestamp(scheduled_at):
     unix_timestamp = int(datetime_obj.timestamp())
     return unix_timestamp
 
-def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_per_hour = None):
+def process_data(file=None, user_prompt = None, scheduling = False, scheduled_at=None, throttling = False, max_emails_per_hour = None):
     
     if scheduled_at:
         unix_timestamp = get_unix_timestamp(scheduled_at)
@@ -37,35 +40,17 @@ def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_pe
     df = pd.read_csv(file.name)
 
 
-    THROTTLE_DELAY  = 3600 / max_emails_per_hour if max_emails_per_hour else 0
+    THROTTLE_DELAY  = 3600 / max_emails_per_hour if throttling else 0
     scheduler = BackgroundScheduler()
-    count = 0
-   
-    # for idx, row in df.iterrows():
-    #     email = row['Email']
-    #     prompt = create_prompt(row, user_prompt=user_prompt)
-    #     message = generate_message(prompt)
-    #     scheduled_time = unix_timestamp if scheduled_at else None
-    #     personalisation_dict = {"send_at": scheduled_time}
-        
-    #     send_email(to_email=email, message_content=message, personalisations_dict=personalisation_dict)
-
-    #     #remove this before finishing
-    #     count += 1
-    #     if count == 3:
-    #         break
-
-
-    
+       
     for idx, row in df.iterrows():
         email = row['Email']
         prompt = create_prompt(row, user_prompt=user_prompt)
         message = generate_message(prompt)
         scheduled_time = unix_timestamp if scheduled_at else None
         personalisation_dict = {"send_at": scheduled_time}
-        # send_email(to_email=email, message_content=message, personalisations_dict=personalisation_dict)
-        
-        run_time = (datetime.strptime(scheduled_at, "%Y-%m-%d %H:%M:%S") if scheduled_at else datetime.now()) + timedelta(seconds= idx * THROTTLE_DELAY)
+                
+        run_time = (datetime.strptime(scheduled_at, "%Y-%m-%d %H:%M:%S") if scheduling else datetime.now()) + timedelta(seconds= idx * THROTTLE_DELAY)
         scheduler.add_job(send_email, args=[email, message, personalisation_dict], run_date=run_time, misfire_grace_time=5)
         
     scheduler.start()
@@ -73,6 +58,8 @@ def process_data(file=None, user_prompt = None, scheduled_at=None, max_emails_pe
     try:
         while True:
             time.sleep(2)
+            if len(scheduler.get_jobs()) == 0:
+                break
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
 
