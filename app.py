@@ -8,8 +8,8 @@ import pandas as pd
 def process_file(file, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour):
 
 
-    process_data(file, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour)
-    return "Emails sent successfully!"
+    return process_data(file, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour)
+    # return "Emails sent successfully!"
 
 def toggle_throttling(throttling):
     return gr.update(visible=throttling)

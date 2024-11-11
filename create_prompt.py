@@ -67,12 +67,19 @@ def process_data(file=None, user_prompt = None, scheduling = False, scheduled_at
     df = pd.read_csv(file.name)
     job_tracker.reset()
     job_tracker.total_jobs = len(df)
-
+    
+    # Initial setup progress
+    progress(0, desc="Initializing...")
+    time.sleep(1)  # Give users time to see the initialization
 
     THROTTLE_DELAY  = 3600 / max_emails_per_hour if throttling else 0
     scheduler = BackgroundScheduler()
        
     for idx, row in df.iterrows():
+         # Show progress for scheduling phase
+        schedule_progress = (idx + 1) / len(df) * 0.2  # First 20% is for scheduling
+        progress(schedule_progress, desc=f"Scheduling email {idx + 1} of {len(df)}...")
+        
         email = row['Email']
         prompt = create_prompt(row, user_prompt=user_prompt)
         message = generate_message(prompt)
@@ -85,15 +92,28 @@ def process_data(file=None, user_prompt = None, scheduling = False, scheduled_at
     scheduler.start()
 
     try:
-        while len(scheduler.get_jobs()) > 0:
-            progress(job_tracker.get_progress() / 100, desc="Sending emails...")
+         while len(scheduler.get_jobs()) > 0:
+            completed = job_tracker.completed_jobs
+            total = job_tracker.total_jobs
+            execution_progress = 0.2 + (completed / total * 0.8)  # Remaining 80% is for execution
+            
+            status = "✓ Scheduled  |  " if scheduling else ""
+            if completed == total:
+                status += "✓ All emails sent!"
+            else:
+                status += f"Sending: {completed}/{total} emails"
+                if throttling:
+                    status += f" (max {max_emails_per_hour}/hour)"
+            
+            progress(execution_progress, desc=status)
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
+        return "Process interrupted!"
     finally:
         scheduler.shutdown()
     
-    return "Emails sent successfully!"
+    return f"Success! Sent {job_tracker.completed_jobs} emails."
 
 if __name__ == "__main__":
     process_data(user_prompt="Generate an email to {Company Name} located at {Location} promoting my marketing services to them, emphasizing my experience in selling {Products}.", 
