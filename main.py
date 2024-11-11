@@ -1,8 +1,8 @@
 # main.py
 import gradio as gr
 from threading import Thread
-from app import create_email_sender_tab
-from analytics import EmailAnalytics
+from EmailSenderTab import create_email_sender_tab
+from EmailAnalyticsTab import EmailAnalytics
 
 def main():
     # Initialize analytics
