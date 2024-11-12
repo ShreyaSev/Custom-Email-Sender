@@ -56,3 +56,6 @@ I used the [Grok API](https://docs.x.ai/docs#getting-started), but you can use a
     python3 main.py
 ```
 
+## Here's a short video demo:
+[Video Link](https://www.loom.com/share/5a19ba11f3e44fbc9a38ed3cf77b06f2?sid=4b78e48d-adff-47ff-aa91-2b3277883093)
+
