@@ -1,5 +1,6 @@
 import pandas as pd
 from SendgridEmailSender import EmailSender
+from GrokMessageGenerator import GrokMessageGenerator
 
 import datetime
 import time
@@ -32,6 +33,7 @@ class JobTracker:
 
 job_tracker = JobTracker()
 email_sender = EmailSender()
+llm_message_generator = GrokMessageGenerator()
 
 #wrapper to track the jobs
 def send_email_with_tracking(email, message, personalisation_dict):
@@ -48,7 +50,8 @@ def create_prompt(row, user_prompt):
 
 #should come from llm
 def generate_message(prompt):
-    return f"This is a message: {prompt}"
+    generated_message = llm_message_generator.get_ai_message(prompt)
+    return generated_message
 
 #convert the scheduled time to unix timestamp
 def get_unix_timestamp(scheduled_at):
@@ -106,7 +109,7 @@ def process_data(file=None, user_prompt = None, scheduling = False, scheduled_at
         personalisation_dict = {"send_at": scheduled_time}
                 
         run_time = (datetime.strptime(scheduled_at, "%Y-%m-%d %H:%M:%S") if scheduling else datetime.now()) + timedelta(seconds= idx * THROTTLE_DELAY)
-        scheduler.add_job(send_email_with_tracking, args=[email, message, personalisation_dict], run_date=run_time, misfire_grace_time=5)
+        scheduler.add_job(send_email_with_tracking, args=[email, message, personalisation_dict], run_date=run_time, misfire_grace_time=30)
     scheduler.start()
 
     #keep program running while there are jobs in the scheduler

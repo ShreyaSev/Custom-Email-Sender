@@ -1,7 +1,7 @@
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, SendAt , PlainTextContent, HtmlContent
-
+import markdown
 
 from pymongo import MongoClient
 from datetime import datetime
@@ -26,8 +26,11 @@ class EmailSender:
         self.emails_collection = self.db['emails_sent']  # Collection name
 
     def send_email(self, to_email, message_content, personalisations_dict = None):
-        html_content=f'<p>If you cannot see this email, please check your email settings or view it online.</p>\
-                        <p>{message_content}</p>' 
+        # html_content=f'<script type="module" src="https://md-block.verou.me/md-block.js"></script>\
+        # <md-block>\
+        # <p>If you cannot see this email, please check your email settings or view it online.</p>\
+        #                 <p>{message_content}</p> </md-block>'
+        html_content = markdown.markdown(message_content) 
         message = Mail(
             from_email=FROM_EMAIL,
             to_emails= to_email,

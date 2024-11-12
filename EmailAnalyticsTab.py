@@ -14,9 +14,8 @@ class EmailAnalytics:
         self.client = MongoClient('mongodb://localhost:27017/')  # For local MongoDB
         self.db = self.client['email_tracking']  # Database name
         self.emails_collection = self.db['emails_sent']  # Collection name
-  
+        self.clear_collection_on_init()
         self.app = Flask(__name__)
-
         # Webhook route to receive data and update the dataframe
         @self.app.route('/webhook/sendgrid', methods=['POST'])
         def webhook():
@@ -52,7 +51,9 @@ class EmailAnalytics:
                     )
 
             return jsonify({"status": "success"}), 200
-
+    
+    def clear_collection_on_init(self):
+        self.emails_collection.delete_many({})
     # Function to get the current dataframe for Gradio
     def get_data(self):
         # Query the MongoDB collection and retrieve all documents
