@@ -42,7 +42,7 @@ NGrok will generate a url endpoint, ending in ngrok-free.app. Note down this url
 
 5.**Setup SendGrid ESP**:
 
- - Visit [the SendGrid website]{https://sendgrid.com/en-us} and follow the steps to create an account. Confirm that you have completed registration as a single sender. Go to Email API -> Integration Guide -> Web API and follow the steps to setup an API key for Python. You can either export the key as an environment variable or create a .env file to store the environment variables.
+ - Visit [the SendGrid website](https://sendgrid.com/en-us) and follow the steps to create an account. Confirm that you have completed registration as a single sender. Go to Email API -> Integration Guide -> Web API and follow the steps to setup an API key for Python. You can either export the key as an environment variable or create a .env file to store the environment variables.
  - Also set the sender address as FROM_EMAIL in the environment variables/.env file.
  - Next, set up the webhook. On the left menu, scroll down and click on Settings -> Mail Settings. Click on event webhooks and create a new webhook. You might have to do this step from mobile. Check the following options:
  ![webhook configuration](images/webhook_config.png)
