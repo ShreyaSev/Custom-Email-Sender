@@ -36,9 +36,9 @@ email_sender = EmailSender()
 llm_message_generator = GrokMessageGenerator()
 
 #wrapper to track the jobs
-def send_email_with_tracking(email, message, personalisation_dict):
+def send_email_with_tracking(email, subject, message, personalisation_dict):
     try:
-        email_sender.send_email(email, message, personalisation_dict)
+        email_sender.send_email(email, subject, message, personalisation_dict)
     finally:
         job_tracker.increment_completed()
 
@@ -77,7 +77,7 @@ def insert_email(company_name, email_id):
     print(f"Email inserted with ID: {result.inserted_id}")
 
 #process the data from the csv file
-def process_data(file=None, user_prompt = None, scheduling = False, scheduled_at=None, throttling = False, max_emails_per_hour = None, progress = gr.Progress()):
+def process_data(file=None, subject = None, user_prompt = None, scheduling = False, scheduled_at=None, throttling = False, max_emails_per_hour = None, progress = gr.Progress()):
     
     if scheduled_at:
         unix_timestamp = get_unix_timestamp(scheduled_at)
@@ -109,7 +109,7 @@ def process_data(file=None, user_prompt = None, scheduling = False, scheduled_at
         personalisation_dict = {"send_at": scheduled_time}
                 
         run_time = (datetime.strptime(scheduled_at, "%Y-%m-%d %H:%M:%S") if scheduling else datetime.now()) + timedelta(seconds= idx * THROTTLE_DELAY)
-        scheduler.add_job(send_email_with_tracking, args=[email, message, personalisation_dict], run_date=run_time, misfire_grace_time=30)
+        scheduler.add_job(send_email_with_tracking, args=[email, subject, message, personalisation_dict], run_date=run_time, misfire_grace_time=30)
     scheduler.start()
 
     #keep program running while there are jobs in the scheduler

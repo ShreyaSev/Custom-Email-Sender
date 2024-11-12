@@ -5,10 +5,10 @@ import pandas as pd
 
 
 #function to handle input
-def process_file(file, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour):
+def process_file(file, subject, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour):
 
 
-    return process_data(file, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour)
+    return process_data(file,subject, prompt, scheduling, scheduled_at, throttling, max_emails_per_hour)
 
 #updates the visibility of the throttling rate input field
 def toggle_throttling(throttling):
@@ -39,7 +39,7 @@ def create_email_sender_tab():
                     gr.Button(column).click(fn = on_click, inputs = [prompt, gr.State(value=column)], outputs = prompt)
 
         prompt = gr.Textbox(label="Prompt", placeholder="Enter a prompt")
-        
+        subject = gr.Textbox(label="Subject", placeholder="Enter the subject line")
         with gr.Accordion(label="Scheduling Options" , open=False):
             scheduling = gr.Checkbox(label="Schedule Emails")
             scheduled_at = gr.DateTime(label="Select a date and time: ", type="string", visible=False)
@@ -54,4 +54,4 @@ def create_email_sender_tab():
         output = gr.Textbox(label="Output")
 
         #on click, runs process_file function
-        submit.click(fn = process_file, inputs = [file, prompt, scheduling, scheduled_at,throttling,max_emails_per_hour], outputs = output)
+        submit.click(fn = process_file, inputs = [file, subject, prompt, scheduling, scheduled_at,throttling,max_emails_per_hour], outputs = output)

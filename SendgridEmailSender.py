@@ -24,7 +24,7 @@ class EmailSender:
         self.db = self.client['email_tracking']  # Database name
         self.emails_collection = self.db['emails_sent']  # Collection name
 
-    def send_email(self, to_email, message_content, personalisations_dict = None):
+    def send_email(self, to_email, subject, message_content, personalisations_dict = None):
         # html_content=f'<script type="module" src="https://md-block.verou.me/md-block.js"></script>\
         # <md-block>\
         # <p>If you cannot see this email, please check your email settings or view it online.</p>\
@@ -33,7 +33,7 @@ class EmailSender:
         message = Mail(
             from_email=FROM_EMAIL,
             to_emails= to_email,
-            subject='Sending with Twilio SendGrid is Fun',
+            subject= subject,
             )
         message.add_content(HtmlContent(html_content))
         message.add_content(PlainTextContent(message_content))
