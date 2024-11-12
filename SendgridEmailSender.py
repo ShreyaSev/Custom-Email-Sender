@@ -14,8 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY2")
-FROM_EMAIL = "shreyasevelar1@gmail.com"
-TO_EMAIL = "shreyasevelar1@gmail.com"
+FROM_EMAIL = os.getenv("FROM_EMAIL")
 
 class EmailSender:
 
