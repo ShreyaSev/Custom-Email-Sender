@@ -59,3 +59,11 @@ I used the [Grok API](https://docs.x.ai/docs#getting-started), but you can use a
 ## Here's a short video demo:
 [Video Link](https://www.loom.com/share/5a19ba11f3e44fbc9a38ed3cf77b06f2?sid=4b78e48d-adff-47ff-aa91-2b3277883093)
 
+
+
+https://github.com/user-attachments/assets/0573e704-160b-4fa2-9e38-55664cad47ee
+
+
+
+
+
