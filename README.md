@@ -19,7 +19,7 @@ This project is a custom email sender application that leverages Large Language 
 
 2. **Install dependencies**:
 ```bash
-pip install -r requirements.txt
+    pip install -r requirements.txt
 ```
 
 3.**Setup MongoDB**:
@@ -48,8 +48,11 @@ NGrok will generate a url endpoint, ending in ngrok-free.app. Note down this url
  ![webhook configuration](images/webhook_config.png)
  After creating a name for your webhook, paste the url you noted down in the previous step in the Post URL field, and add /webhook/sendgrid to the end. Sendgrid will send the tracking statuses to this endpoint which will be accessed by our application.
 
-6. **Run the app**:
+6. **Setup your LLM**:
+I used the [Grok API](https://docs.x.ai/docs#getting-started), but you can use any OpenAI compatible LLM API. Setup your API key and add it to your environment variables/.env file. 
+
+7. **Run the app**:
 ```bash
-    python run main.py
+    python3 main.py
 ```
 
